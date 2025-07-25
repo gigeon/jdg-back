@@ -11,4 +11,40 @@
             USER_ID = #{userId}
             AND USER_PSWD = #{userPswd}
     </select>
+
+    <insert id="insertUser">
+        INSERT
+            INTO TB_USER
+        (
+            USER_ID
+            , USER_PSWD
+            , USER_NM
+            , USER_OTP
+            , USE_YN
+            , REG_DT
+            , RGTR_ID
+            , MDFCN_DT
+            , MDFR_ID
+        ) VALUES (
+            #{userId}
+            , #{userPswd}
+            , #{userNm}
+            , #{userOtp}
+            , 'Y'
+            , CURDATE()
+            , #{userId}
+            , CURDATE()
+            , #{userId}
+        )
+    </insert>
+
+    <select id="selectUserList">
+        SELECT
+            USER_ID
+            , USER_NM
+            , USER_AUTH_CD
+            , REG_DT
+        FROM
+            TB_USER
+    </select>
 </mapper>
