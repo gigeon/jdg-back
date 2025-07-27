@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="jtw.jtwback.domain.accs.dao.AccsDao">
+
+    <select id="selectAccsAll">
+        SELECT
+            ACCS_ID
+            , ACCS_NM
+            , ACCS_CN
+            , ACCS_CD
+            , ACCS_URL
+            , ACCS_PORT
+            , ACCS_DB
+        FROM
+            TB_ACCS
+        WHERE
+            1 = 1
+            <if test="accsNm != '' and accsNm != null">
+                AND ACCS_NM = #{accsNm}
+            </if>
+            <if test="accsCd != '' and accsCd != null">
+                AND ACCS_CD = #{accsCd}
+            </if>
+    </select>
+</mapper>

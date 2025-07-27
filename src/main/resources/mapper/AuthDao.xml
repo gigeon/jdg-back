@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="jtw.jtwback.domain.auth.dao.AuthDao">
+
+    <select id="selectAuthAll">
+        SELECT
+            AUTH_ID
+             , AUTH_NM
+             , AUTH_CN
+             , DDL_YN
+             , S_YN
+             , U_YN
+             , I_YN
+             , D_YN
+             , REG_DT
+        FROM
+            TB_AUTH
+    </select>
+</mapper>
+

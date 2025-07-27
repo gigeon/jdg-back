@@ -8,8 +8,6 @@ import static jtw.jtwback.com.utilMap.*;
 
 import jtw.jtwback.util.OtpService;
 import lombok.RequiredArgsConstructor;
-import org.apache.ibatis.jdbc.Null;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
@@ -27,9 +25,7 @@ public class UserService {
     public BaseMap userLogin(BaseMap body) {
         int flag = 0;
         BaseMap user = fromDbMap(userDao.userLogin(body));
-        System.out.println(user);
         boolean otpResult = otpService.verifyOtp(user, body);
-        System.out.println(otpResult);
         if(!otpResult) {
             throw new RuntimeException("otp 번호를 다시 확인해주세요.");
         }

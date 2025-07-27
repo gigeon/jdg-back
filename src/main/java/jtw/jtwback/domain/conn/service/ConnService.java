@@ -19,41 +19,72 @@ public class ConnService {
     private final ConnDao connDao;
 
     public BaseMap pushCli(BaseMap body) {
-        BaseMap db = fromDbMap(connDao.selectDbDetail(body));
-        String url = db.getString("accsUrl").toString();
-        String input = body.getString("inputText").toString();
+        BaseMap resultMap = new BaseMap();
+        try {
+            BaseMap accs = fromDbMap(connDao.selectDbDetail(body));
+            String url = setUrl(accs);
+            System.out.println(url);
+            String inputText = body.getString("inputText").toString();
 
-        try (Connection conn = DriverManager.getConnection(url, "root", "1234");
-             Statement stmt = conn.createStatement()) {
+            try (Connection conn = DriverManager.getConnection(url, "root", "1234");
+                 Statement stmt = conn.createStatement()) {
 
-            boolean hasResultSet = stmt.execute(input);
+                boolean hasResultSet = stmt.execute(inputText);
 
-            if (hasResultSet) {
-                ResultSet rs = stmt.getResultSet();
-                ResultSetMetaData meta = rs.getMetaData();
-                int colCount = meta.getColumnCount();
+                resultMap.set("success", true);
+                resultMap.set("query", inputText);
 
-                List<BaseMap> results = new ArrayList<>();
-                while (rs.next()) {
-                    BaseMap row = new BaseMap();
-                    for (int i = 1; i <= colCount; i++) {
-                        row.put(meta.getColumnLabel(i), rs.getObject(i));
+                if (hasResultSet) {
+                    ResultSet rs = stmt.getResultSet();
+                    ResultSetMetaData meta = rs.getMetaData();
+                    int colCount = meta.getColumnCount();
+
+                    List<BaseMap> results = new ArrayList<>();
+                    while (rs.next()) {
+                        BaseMap row = new BaseMap();
+                        for (int i = 1; i <= colCount; i++) {
+                            row.put(meta.getColumnLabel(i), rs.getObject(i));
+                        }
+                        results.add(row);
                     }
-                    results.add(row);
+
+                    resultMap.set("type", "resultSet");
+                    resultMap.set("result", results);
+                } else {
+                    int updateCount = stmt.getUpdateCount();
+                    resultMap.set("type", "updateCount");
+                    resultMap.set("updateCount", updateCount);
+                    resultMap.set("message", "Query OK, " + updateCount + " rows affected.");
                 }
 
-                return ResponseEntity.ok(results);
-
-            } else {
-                int updateCount = stmt.getUpdateCount();
-                return ResponseEntity.ok("Query OK, " + updateCount + " rows affected.");
+            } catch (SQLException e) {
+                resultMap.set("success", false);
+                resultMap.set("type", "sqlError");
+                resultMap.set("result", e.getMessage());
+                resultMap.set("sqlState", e.getSQLState());
+                resultMap.set("errorCode", e.getErrorCode());
             }
 
-        } catch (SQLException e) {
-            return ResponseEntity.status(500).body("SQL Error: " + e.getMessage());
+        } catch (Exception e) {
+            resultMap.set("success", false);
+            resultMap.set("type", "systemError");
+            resultMap.set("result", e.getMessage());
         }
 
-        return null;
+        return resultMap;
+    }
+
+    public String setUrl(BaseMap body) {
+        String result = new String();
+        String accsUrl = body.getString("accsUrl").toString();
+        String accsPort = body.getString("accsPort").toString();
+        String accsDb = body.getString("accsDb").toString();
+        String accsCd = body.getString("accsCd").toString();
+
+        if(accsCd.equals("001")) {
+            result = "jdbc:mysql://" + accsUrl + ":" + accsPort + "/" +accsDb;
+        }
+        return result;
     }
 
 }
